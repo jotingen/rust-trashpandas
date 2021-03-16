@@ -1,3 +1,21 @@
+extern crate rand;
+
+use rand::thread_rng;
+use rand::seq::SliceRandom;
+
+struct Game {
+    deck: Vec<Card>,
+    discard: Vec<Card>,
+    player: [Player; 4],
+}
+
+#[derive(Default)]
+struct Player {
+    hand: Vec<Card>,
+    stash: Vec<Card>,
+    stash_hidden: Vec<Card>,
+}
+
 #[derive(Debug)]
 #[derive(Default)]
 struct Card {
@@ -17,9 +35,7 @@ struct Card {
     description: String,
 }
 
-fn main() {
-    println!("Hello, world!");
-
+fn create_deck() -> Vec<Card> {
     let mut deck = Vec::new();
 
     for _i in 0..13 {
@@ -95,6 +111,7 @@ fn main() {
             description: "Steal a stashed card form a player. (Put in your hand)".to_string(),
             ..Default::default()
         });
+    }
 
     for _i in 0..3 {
         deck.push(Card {
@@ -105,10 +122,31 @@ fn main() {
         });
     }
 
-    }
+    return deck;
+}
 
+fn main() {
+
+    //Create game world
+    let mut game = Game {
+        deck: create_deck(),
+        discard: Vec::new(),
+        player: [ Player {..Default::default()},
+                  Player {..Default::default()},
+                  Player {..Default::default()},
+                  Player {..Default::default()} ],
+    };
+
+    //Shuffle the deck
+    game.deck.shuffle(&mut thread_rng());
+
+    //Printout stuff
     println!("deck : ");
-    for card in deck {
-        println!("  {:?}", card);
+    for card in game.deck {
+        println!("  {:?}", card.name);
+    }
+    println!("discard : ");
+    for card in game.discard {
+        println!("  {:?}", card.name);
     }
 }
