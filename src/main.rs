@@ -1,23 +1,23 @@
 extern crate rand;
 
-use rand::thread_rng;
 use rand::seq::SliceRandom;
+use rand::thread_rng;
 
+#[derive(Debug)]
 struct Game {
     deck: Vec<Card>,
     discard: Vec<Card>,
-    player: [Player; 4],
+    players: [Player; 4],
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 struct Player {
     hand: Vec<Card>,
     stash: Vec<Card>,
     stash_hidden: Vec<Card>,
 }
 
-#[derive(Debug)]
-#[derive(Default)]
+#[derive(Debug, Default)]
 struct Card {
     name: String,
     points_for_first: u16,
@@ -98,7 +98,8 @@ fn create_deck() -> Vec<Card> {
         deck.push(Card {
             name: "KITTEH".to_string(),
             stop_steal_steal_one: true,
-            description: "If a player tries to steal from you, steal from them instead.".to_string(),
+            description: "If a player tries to steal from you, steal from them instead."
+                .to_string(),
             ..Default::default()
         });
     }
@@ -125,28 +126,70 @@ fn create_deck() -> Vec<Card> {
     return deck;
 }
 
-fn main() {
+fn print_game(game: Game) {
+    print!("deck : {} : (", game.deck.len());
+    for card in &game.deck {
+        print!(" {:?}", card.name);
+    }
+    println!(" )");
+    println!();
 
+    print!("discard : {} : (", game.discard.len());
+    for card in &game.discard {
+        print!(" {:?}", card.name);
+    }
+    println!(" )");
+    println!();
+
+    for n in 0..game.players.len() {
+        println!("Player {}:", n);
+
+        print!("  hand : {} : (", game.players[n].hand.len());
+        for card in &game.players[n].hand {
+            print!(" {:?}", card.name);
+        }
+        println!(" )");
+
+        print!("  stash : {} : (", game.players[n].stash.len());
+        for card in &game.players[n].stash {
+            print!(" {:?}", card.name);
+        }
+        println!(" )");
+
+        print!("  stash hidden : {} : (", game.players[n].stash_hidden.len());
+        for card in &game.players[n].stash_hidden {
+            print!(" {:?}", card.name);
+        }
+        println!(" )");
+
+        println!();
+    }
+}
+
+fn main() {
     //Create game world
     let mut game = Game {
         deck: create_deck(),
         discard: Vec::new(),
-        player: [ Player {..Default::default()},
-                  Player {..Default::default()},
-                  Player {..Default::default()},
-                  Player {..Default::default()} ],
+        players: [
+            Player {
+                ..Default::default()
+            },
+            Player {
+                ..Default::default()
+            },
+            Player {
+                ..Default::default()
+            },
+            Player {
+                ..Default::default()
+            },
+        ],
     };
 
     //Shuffle the deck
     game.deck.shuffle(&mut thread_rng());
 
     //Printout stuff
-    println!("deck : ");
-    for card in game.deck {
-        println!("  {:?}", card.name);
-    }
-    println!("discard : ");
-    for card in game.discard {
-        println!("  {:?}", card.name);
-    }
+    print_game(game);
 }
