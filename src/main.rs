@@ -2,12 +2,13 @@ extern crate rand;
 
 use rand::seq::SliceRandom;
 use rand::thread_rng;
+use std::io::{stdin, stdout, Read, Write};
 
 #[derive(Debug)]
 struct Game {
     deck: Vec<Card>,
     discard: Vec<Card>,
-    players: [Player; 4],
+    player: [Player; 4],
 }
 
 #[derive(Debug, Default)]
@@ -126,7 +127,7 @@ fn create_deck() -> Vec<Card> {
     return deck;
 }
 
-fn print_game(game: Game) {
+fn print_game(game: &Game) {
     print!("deck : {} : (", game.deck.len());
     for card in &game.deck {
         print!(" {:?}", card.name);
@@ -141,23 +142,23 @@ fn print_game(game: Game) {
     println!(" )");
     println!();
 
-    for n in 0..game.players.len() {
+    for n in 0..game.player.len() {
         println!("Player {}:", n);
 
-        print!("  hand : {} : (", game.players[n].hand.len());
-        for card in &game.players[n].hand {
+        print!("  hand : {} : (", game.player[n].hand.len());
+        for card in &game.player[n].hand {
             print!(" {:?}", card.name);
         }
         println!(" )");
 
-        print!("  stash : {} : (", game.players[n].stash.len());
-        for card in &game.players[n].stash {
+        print!("  stash : {} : (", game.player[n].stash.len());
+        for card in &game.player[n].stash {
             print!(" {:?}", card.name);
         }
         println!(" )");
 
-        print!("  stash hidden : {} : (", game.players[n].stash_hidden.len());
-        for card in &game.players[n].stash_hidden {
+        print!("  stash hidden : {} : (", game.player[n].stash_hidden.len());
+        for card in &game.player[n].stash_hidden {
             print!(" {:?}", card.name);
         }
         println!(" )");
@@ -166,12 +167,29 @@ fn print_game(game: Game) {
     }
 }
 
+fn deal_game(game: &mut Game) {
+    for i in 0..6 {
+        for n in 0..game.player.len() {
+            if game.deck.len() > 0 && i < (n + 3) {
+                game.player[n].hand.push(game.deck.pop().unwrap());
+            }
+        }
+    }
+}
+
+fn pause(s: String) {
+    let mut stdout = stdout();
+    stdout.write(s.as_bytes()).unwrap();
+    stdout.flush().unwrap();
+    stdin().read(&mut [0]).unwrap();
+}
+
 fn main() {
     //Create game world
     let mut game = Game {
         deck: create_deck(),
         discard: Vec::new(),
-        players: [
+        player: [
             Player {
                 ..Default::default()
             },
@@ -191,5 +209,10 @@ fn main() {
     game.deck.shuffle(&mut thread_rng());
 
     //Printout stuff
-    print_game(game);
+    print_game(&game);
+
+    pause("Press enter to deal".to_string());
+
+    deal_game(&mut game);
+    print_game(&game);
 }
